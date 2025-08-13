@@ -49,7 +49,7 @@ function App() {
       setIsLoading(true);
       setLoadingMessage('Fetching repositories...');
       try {
-        const response = await fetch('http://localhost:8000/api/repos', {
+        const response = await fetch('https://test-case-generator-production.up.railway.app/api/repos', {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         const data = await response.json();
@@ -69,7 +69,7 @@ function App() {
       setLoadingMessage('Fetching files...');
       try {
         const [owner, repoName] = selectedRepo.full_name.split('/');
-        const response = await fetch(`http://localhost:8000/api/repos/${owner}/${repoName}/contents?path=${encodeURIComponent(currentPath)}`, {
+        const response = await fetch(`https://test-case-generator-production.up.railway.app/api/repos/${owner}/${repoName}/contents?path=${encodeURIComponent(currentPath)}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         const data = await response.json();
@@ -106,7 +106,7 @@ function App() {
     setIsLoading(true);
     try {
       const [owner, repoName] = selectedRepo.full_name.split('/');
-      const res = await fetch(`http://localhost:8000/api/repos/${owner}/${repoName}/contents/${file.sha}`, {
+      const res = await fetch(`https://test-case-generator-production.up.railway.app/api/repos/${owner}/${repoName}/contents/${file.sha}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       const data = await res.json();
@@ -127,14 +127,14 @@ function App() {
     try {
       const fileContentPromises = Array.from(selectedFiles.keys()).map(async (sha) => {
         const [owner, repoName] = selectedRepo.full_name.split('/');
-        const res = await fetch(`http://localhost:8000/api/repos/${owner}/${repoName}/contents/${sha}`, {
+        const res = await fetch(`https://test-case-generator-production.up.railway.app/api/repos/${owner}/${repoName}/contents/${sha}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         const data = await res.json();
         return { name: selectedFiles.get(sha)!, content: data.content };
       });
       const filesWithContent = await Promise.all(fileContentPromises);
-      const suggestionsResponse = await fetch('http://localhost:8000/api/generate-suggestions', {
+      const suggestionsResponse = await fetch('https://test-case-generator-production.up.railway.app/api/generate-suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ files: filesWithContent }),
@@ -156,14 +156,14 @@ function App() {
     try {
       const fileContentPromises = Array.from(selectedFiles.keys()).map(async (sha) => {
         const [owner, repoName] = selectedRepo.full_name.split('/');
-        const res = await fetch(`http://localhost:8000/api/repos/${owner}/${repoName}/contents/${sha}`, {
+        const res = await fetch(`https://test-case-generator-production.up.railway.app/api/repos/${owner}/${repoName}/contents/${sha}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         const data = await res.json();
         return { name: selectedFiles.get(sha)!, content: data.content };
       });
       const filesWithContent = await Promise.all(fileContentPromises);
-      const codeResponse = await fetch('http://localhost:8000/api/generate-code', {
+      const codeResponse = await fetch('https://test-case-generator-production.up.railway.app/api/generate-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ files: filesWithContent, suggestion: suggestion }),
@@ -201,7 +201,7 @@ function App() {
     setIsLoading(true);
     setLoadingMessage('Creating Pull Request...');
     try {
-      const response = await fetch('http://localhost:8000/api/create-pr', {
+      const response = await fetch('https://test-case-generator-production.up.railway.app/api/create-pr', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -371,7 +371,7 @@ function App() {
           <div>
             <h2 className="text-xl font-semibold mb-4 text-white">Connect to GitHub to Begin</h2>
             <p className="text-gray-400">Click the button below to authorize the application.</p>
-            <button onClick={() => window.location.href = 'http://localhost:8000/auth/github'} className="mt-4 px-6 py-2 bg-cyan-500 text-gray-900 font-bold rounded-lg hover:bg-cyan-400">Login with GitHub</button>
+            <button onClick={() => window.location.href = 'https://test-case-generator-production.up.railway.app/auth/github'} className="mt-4 px-6 py-2 bg-cyan-500 text-gray-900 font-bold rounded-lg hover:bg-cyan-400">Login with GitHub</button>
           </div>
         );
     }
