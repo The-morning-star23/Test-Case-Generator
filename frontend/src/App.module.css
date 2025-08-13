@@ -1,0 +1,48 @@
+.appContainer {
+  min-height: 100vh;
+  background-color: #111827;
+  color: white;
+}
+.header {
+  background-color: #1f2937;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  padding: 1rem;
+}
+.headerTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #22d3ee;
+  margin: 0;
+}
+.mainContent {
+  max-width: 900px;
+  margin: auto;
+  padding: 2rem;
+}
+.card {
+  background-color: #1f2937;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.cardText {
+  color: #9ca3af;
+}
+.loginButton {
+  background-color: #22d3ee;
+  color: #111827;
+  font-weight: bold;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.loginButton:hover {
+  background-color: #67e8f9;
+}
