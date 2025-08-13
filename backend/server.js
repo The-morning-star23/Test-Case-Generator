@@ -38,7 +38,7 @@ app.get('/auth/github/callback', async (req, res) => {
     if (tokenData.error) {
       return res.status(400).json(tokenData);
     }
-    res.redirect(`http://localhost:5173?token=${tokenData.access_token}`);
+    res.redirect(`https://test-case-generator-beta.vercel.app?token=${tokenData.access_token}`);
   } catch (error) {
     console.error('Error in GitHub callback:', error);
     res.status(500).json({ error: 'Internal Server Error' });
