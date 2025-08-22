@@ -165,6 +165,6 @@ app.get('/api/job-status/:queueName/:jobId', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`API Server is running on http://localhost:${PORT}`);
 });
