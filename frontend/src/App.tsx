@@ -33,6 +33,39 @@ function App() {
   const [viewingFileContent, setViewingFileContent] = useState<string>('');
   const [viewingFileName, setViewingFileName] = useState<string>('');
 
+  // --- Helper function for polling job status ---
+  const pollJobStatus = async (queueName: string, jobId: string) => {
+    const interval = setInterval(async () => {
+      try {
+        // This URL is now corrected to point to your backend
+        const response = await fetch(`https://test-case-generator-production.up.railway.app/api/job-status/${queueName}/${jobId}`);
+        const data = await response.json();
+
+        if (data.status === 'completed') {
+          clearInterval(interval);
+          setIsLoading(false);
+          if (queueName === 'suggestions') {
+            setSuggestions(data.result.suggestions || []);
+            setView('suggestions');
+          } else if (queueName === 'code') {
+            setGeneratedCode(data.result.code || 'Could not generate code.');
+            setView('code');
+          }
+        } else if (data.status === 'failed') {
+          clearInterval(interval);
+          setIsLoading(false);
+          alert(`Job failed: ${data.reason}`);
+        }
+        // If status is 'processing', the interval continues
+      } catch (error) {
+        clearInterval(interval);
+        setIsLoading(false);
+        console.error('Error polling job status:', error);
+        alert('An error occurred while checking the job status.');
+      }
+    }, 3000); // Check every 3 seconds
+  };
+
   // --- Effects ---
   useEffect(() => {
     const token = new URLSearchParams(window.location.search).get('token');
@@ -123,7 +156,7 @@ function App() {
   const handleGenerateSuggestions = async () => {
     if (!selectedRepo || !accessToken || selectedFiles.size === 0) return;
     setIsLoading(true);
-    setLoadingMessage('Analyzing files...');
+    setLoadingMessage('Submitting job to generate suggestions...');
     try {
       const fileContentPromises = Array.from(selectedFiles.keys()).map(async (sha) => {
         const [owner, repoName] = selectedRepo.full_name.split('/');
@@ -134,25 +167,26 @@ function App() {
         return { name: selectedFiles.get(sha)!, content: data.content };
       });
       const filesWithContent = await Promise.all(fileContentPromises);
-      const suggestionsResponse = await fetch('https://test-case-generator-production.up.railway.app/api/generate-suggestions', {
+      
+      const response = await fetch('https://test-case-generator-production.up.railway.app/api/generate-suggestions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ files: filesWithContent }),
       });
-      const suggestionsData = await suggestionsResponse.json();
-      setSuggestions(suggestionsData.suggestions || []);
-      setView('suggestions');
+      const { jobId } = await response.json();
+      setLoadingMessage('AI is generating suggestions... This may take a moment.');
+      pollJobStatus('suggestions', jobId);
     } catch (error) {
-      console.error("Failed to generate suggestions:", error);
-      alert("An error occurred while generating suggestions.");
+      console.error("Failed to submit suggestion job:", error);
+      alert("An error occurred while submitting the job.");
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleGenerateCode = async (suggestion: Suggestion) => {
     if (!selectedRepo || !accessToken || selectedFiles.size === 0) return;
     setIsLoading(true);
-    setLoadingMessage('Generating test code...');
+    setLoadingMessage('Submitting job to generate code...');
     try {
       const fileContentPromises = Array.from(selectedFiles.keys()).map(async (sha) => {
         const [owner, repoName] = selectedRepo.full_name.split('/');
@@ -163,19 +197,20 @@ function App() {
         return { name: selectedFiles.get(sha)!, content: data.content };
       });
       const filesWithContent = await Promise.all(fileContentPromises);
-      const codeResponse = await fetch('https://test-case-generator-production.up.railway.app/api/generate-code', {
+
+      const response = await fetch('https://test-case-generator-production.up.railway.app/api/generate-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ files: filesWithContent, suggestion: suggestion }),
       });
-      const codeData = await codeResponse.json();
-      setGeneratedCode(codeData.code || 'Could not generate code.');
-      setView('code');
+      const { jobId } = await response.json();
+      setLoadingMessage('AI is writing the code... This may take a moment.');
+      pollJobStatus('code', jobId);
     } catch (error) {
-      console.error("Failed to generate code:", error);
-      alert("An error occurred while generating code.");
+      console.error("Failed to submit code generation job:", error);
+      alert("An error occurred while submitting the job.");
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleCopyToClipboard = () => {
